@@ -1,1 +1,1 @@
-from .main import Translator, Translation
+from .main import Translator, Translation, rewrap
