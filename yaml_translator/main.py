@@ -17,6 +17,14 @@ def dict_depth(d: dict):
     return 1 + max((dict_depth(v) for v in d.values() if isinstance(v, dict)), default=0)
 
 
+def rewrap(translations: dict) -> dict:
+    result = {}
+    for lang, entries in translations.items():
+        for key, text in entries.items():
+            result.setdefault(key, {})[lang] = text
+    return result
+
+
 def _format(dict_data: dict, format_values: dict) -> dict:
     """
     This function allows formatting on the specified data key in the dictionary with support of invested dictionaries.
@@ -27,13 +35,14 @@ def _format(dict_data: dict, format_values: dict) -> dict:
     """
     if format_values is None:
         return dict_data
-
     result = {}
     for key, value in dict_data.items():
         if isinstance(value, dict):
             result[key] = _format(value, format_values)
         elif isinstance(value, str):
             result[key] = value.format(**format_values)
+        else:
+            result[key] = value
     return result
 
 
@@ -75,7 +84,7 @@ class DeepDict(dict):
             if format is None:
                 return self[key]
             else:
-                return _format(self, format)
+                return _format(self[key], format)
         except KeyError:
             return default
 
@@ -133,5 +142,8 @@ class Translator:
 if __name__ == "__main__":
     translator = Translator('../translations')
 
-    print(translator.get('test').get('test', 'ru', {'foo': 123}))
-    print(translator.get('test').get_all('test', {'foo': 123}))
+    foo = {1: {213: 312}}
+
+    # print(translator.get('test').get('test', 'ru', {'foo': 123}))
+    # print(translator.get('test').get_all('test'))
+    print(rewrap(translator.get('test').get_all('test', {'foo': 123})))
