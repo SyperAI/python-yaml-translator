@@ -20,8 +20,11 @@ def dict_depth(d: dict):
 def rewrap(translations: dict) -> dict:
     result = {}
     for lang, entries in translations.items():
-        for key, text in entries.items():
-            result.setdefault(key, {})[lang] = text
+        if isinstance(entries, dict):
+            for key, text in entries.items():
+                result.setdefault(key, {})[lang] = text
+        else:
+            result[lang] = entries
     return result
 
 
@@ -35,6 +38,7 @@ def _format(dict_data: dict, format_values: dict) -> dict:
     """
     if format_values is None:
         return dict_data
+
     result = {}
     for key, value in dict_data.items():
         if isinstance(value, dict):
@@ -43,6 +47,7 @@ def _format(dict_data: dict, format_values: dict) -> dict:
             result[key] = value.format(**format_values)
         else:
             result[key] = value
+
     return result
 
 
@@ -140,10 +145,4 @@ class Translator:
 
 
 if __name__ == "__main__":
-    translator = Translator('../translations')
-
-    foo = {1: {213: 312}}
-
-    # print(translator.get('test').get('test', 'ru', {'foo': 123}))
-    # print(translator.get('test').get_all('test'))
-    print(rewrap(translator.get('test').get_all('test', {'foo': 123})))
+    pass
